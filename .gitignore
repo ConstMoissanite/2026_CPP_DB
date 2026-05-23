@@ -31,4 +31,16 @@
 *.out
 *.app
 
-./vscode
+# CMake build directory
+build/
+
+# IDE
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Test binaries (if any leak outside build/)
+*_test
