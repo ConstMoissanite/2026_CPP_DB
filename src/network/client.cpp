@@ -11,6 +11,7 @@
     #include <sys/socket.h>
     #include <netinet/in.h>
     #include <arpa/inet.h>
+    #include <netdb.h>
     #include <unistd.h>
     #define SOCKET int
     #define INVALID_SOCKET (-1)
@@ -36,9 +37,14 @@ static SOCKET connect_to_server(const char* host, int port) {
     addr.sin_port = htons(static_cast<unsigned short>(port));
 
     // Resolve host
-    struct hostent* he = gethostbyname(host);
-    if (he) {
-        std::memcpy(&addr.sin_addr, he->h_addr_list[0], static_cast<std::size_t>(he->h_length));
+    struct addrinfo hints, *res = nullptr;
+    std::memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    if (getaddrinfo(host, nullptr, &hints, &res) == 0 && res) {
+        struct sockaddr_in* sa = reinterpret_cast<struct sockaddr_in*>(res->ai_addr);
+        addr.sin_addr = sa->sin_addr;
+        freeaddrinfo(res);
     } else {
         addr.sin_addr.s_addr = inet_addr(host);
     }
